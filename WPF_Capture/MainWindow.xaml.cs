@@ -122,6 +122,7 @@ namespace WPF_Capture
             {
                 // Display the selected folder path in the TextBox
                 txtAddress.Text = System.IO.Path.GetDirectoryName(openFileDialog.FileName);
+                LoadImagesFromFolder(txtAddress.Text);
             }
         }
 
@@ -153,21 +154,36 @@ namespace WPF_Capture
             listView.ItemsSource = null;
             listView.ItemsSource = imageList;
 
-            // After capturing the image, upload it to Firebase
-            // UploadImage(fileName);
+           
         }
 
-        //private async void UploadImage(string filePath)
-        //{
-        //    var firebase = new FirebaseStorage("prn221-f5853.appspot.com")
-        //        .Child("folderName")
-        //        .Child(System.IO.Path.GetFileName(filePath)); // use the actual file name
+        private void LoadImagesFromFolder(string folderPath)
+        {
+            // Lấy tất cả các tệp hình ảnh trong thư mục
+            string[] imageFiles = Directory.GetFiles(folderPath, "*.*").Where(file => file.EndsWith(".png") || file.EndsWith(".jpg") || file.EndsWith(".jpeg")).ToArray();
 
-        //    var stream = File.Open(filePath, FileMode.Open);
-        //    var task = firebase.PutAsync(stream);
-        //    task.Progress.ProgressChanged += (s, e) => Console.WriteLine($"Progress: {e.Percentage} %");
-        //    var downloadUrl = await task;
-        //}
+            // Xóa tất cả các mục hiện có trong ListView
+            imageList.Clear();
+
+            // Thêm tất cả các hình ảnh vào ListView
+            foreach (string imageFile in imageFiles)
+            {
+                Mat image = CvInvoke.Imread(imageFile); // Đọc hình ảnh từ tệp
+
+                ImageInfo imageInfo = new ImageInfo()
+                {
+                    ImageSource = ToBitmapSource(image),
+                    FilePath = imageFile
+                };
+
+                imageList.Add(imageInfo);
+            }
+
+            // Đặt nguồn dữ liệu cho ListView
+            listView.ItemsSource = null;
+            listView.ItemsSource = imageList;
+        }
+
 
         private async void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -182,6 +198,7 @@ namespace WPF_Capture
                     var Ocr = new IronTesseract();
 
                     Ocr.Language = OcrLanguage.EnglishBest;
+                    Ocr.AddSecondaryLanguage(OcrLanguage.Vietnamese);
 
                     using OcrInput input = new OcrInput(selectedItem.FilePath);
                     input.Deskew();
@@ -194,7 +211,7 @@ namespace WPF_Capture
                     var rs = resultText.Text;
 
                     // Danh sách các loại thuốc bạn đã biết
-                    List<string> knownDrugs = new List<string> { "Baciamin Plus", "Esapbe", "QA Alipro", "PROHEPATIS", "Sultamicillin 375mg","NEXT G CAL", "HEMO Q MOM", "Certirizin 10mg (Taparen)", "Penicilin", "Paracetamol" };
+                    List<string> knownDrugs = new List<string> { "Baciamin Plus", "Esapbe", "QA Alipro", "PROHEPATIS", "Candesartan","NEXT G CAL", "Cetirizin 10mg (Taparen)", "Rotundin 60mg", "Penicilin", "Paracetamol" };
 
                     // Lọc tên thuốc từ văn bản
                     if (!string.IsNullOrEmpty(rs) && rs.Length > 0)

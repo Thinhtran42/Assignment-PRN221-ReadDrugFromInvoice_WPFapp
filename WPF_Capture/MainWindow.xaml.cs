@@ -200,7 +200,7 @@ namespace WPF_Capture
                     var Ocr = new IronTesseract();
 
                     Ocr.Language = OcrLanguage.EnglishBest;
-                    Ocr.AddSecondaryLanguage(OcrLanguage.Vietnamese);
+                    //Ocr.AddSecondaryLanguage(OcrLanguage.Vietnamese);
 
                     using OcrInput input = new OcrInput(selectedItem.FilePath);
                     input.Deskew();
@@ -213,7 +213,9 @@ namespace WPF_Capture
                     var rs = resultText.Text;
 
                     // Danh sách các loại thuốc bạn đã biết
-                    List<string> knownDrugs = new List<string> { "YESOM", "Saferon", "Tebexerol", "Medrol", "Arcoxia", "Baciamin Plus", "Bestimac", "DICSEP", "CELERZIN", "Amoxycilin", "Zinnat", "Rivaroxaban", "Tablet", "Gliclazid" };
+                    //List<string> knownDrugs = new List<string> { "YESOM", "Saferon", "Tebexerol", "Medrol", "Arcoxia", "Baciamin Plus", "Bestimac", "DICSEP", "CELERZIN", "Amoxycilin", "Zinnat", "Rivaroxaban", "Tablet", "Gliclazid" };
+                    DataConfig dataConfig = new DataConfig();
+                    List<string> knownDrugs = dataConfig.GetKnownDrugsListNameFromDatabase();
 
                     if (!string.IsNullOrEmpty(rs) && rs.Length > 0)
                     {

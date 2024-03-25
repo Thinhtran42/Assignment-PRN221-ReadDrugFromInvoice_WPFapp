@@ -103,6 +103,36 @@ namespace WPF_Capture.ConnectDB
             return medicineInfo;
         }
 
+        public List<string> GetKnownDrugsListNameFromDatabase()
+        {
+            List<string> knownDrugs = new List<string>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(sConnect))
+                {
+                    string query = "SELECT name FROM Drug"; 
+                    SqlCommand command = new SqlCommand(query, connection);
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        string drugName = reader["name"].ToString();
+                        knownDrugs.Add(drugName);
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while fetching drug names from the database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            return knownDrugs;
+        }
+
         /// <summary>
         /// Hàm dùng để lưu dữ liệu xuống SQL
         /// </summary>

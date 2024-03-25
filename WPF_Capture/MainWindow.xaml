@@ -25,6 +25,6 @@
         <Button x:Name="btnBrowse" Content="Browse Folder" HorizontalAlignment="Left" Margin="309,312,0,0" VerticalAlignment="Top" Height="29" Width="91" Click="btnBrowse_Click"/>
         <Image x:Name="imageControl" HorizontalAlignment="Left" Height="233" Margin="516,10,0,0" VerticalAlignment="Top" Width="233"/>
         <Button x:Name="btnCapture" Content="Capture" HorizontalAlignment="Left" Margin="597,299,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.509,0.3" Height="47" Width="82" Click="btnCapture_Click"/>
-
+        <Button x:Name="btnDelete" Content="Delete" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="btnDelete_Click" Margin="425,0,0,72" Height="29" Width="91"/>
     </Grid>
 </Window>

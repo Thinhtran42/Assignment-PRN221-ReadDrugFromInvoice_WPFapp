@@ -18,6 +18,8 @@ using Emgu.CV.Structure;
 using Firebase.Storage;
 using System.IO;
 using IronOcr;
+using System.Data;
+using WPF_Capture.ConnectDB;
 
 namespace WPF_Capture
 {
@@ -137,7 +139,7 @@ namespace WPF_Capture
             _capture.Retrieve(captureImage);
 
             //Create file dialog
-            string fileName = System.IO.Path.Combine(txtAddress.Text, DateTime.Now.ToString("yyyyMMddHHmmss") + ".jpg");
+            string fileName = System.IO.Path.Combine(txtAddress.Text, DateTime.Now.ToString("yyyyMMddHHmmss") + ".jpg" + ".webp");
             captureImage.Save(fileName);
 
             //Create image info object
@@ -154,13 +156,13 @@ namespace WPF_Capture
             listView.ItemsSource = null;
             listView.ItemsSource = imageList;
 
-           
+
         }
 
         private void LoadImagesFromFolder(string folderPath)
         {
             // Lấy tất cả các tệp hình ảnh trong thư mục
-            string[] imageFiles = Directory.GetFiles(folderPath, "*.*").Where(file => file.EndsWith(".png") || file.EndsWith(".jpg") || file.EndsWith(".jpeg")).ToArray();
+            string[] imageFiles = Directory.GetFiles(folderPath, "*.*").Where(file => file.EndsWith(".png") || file.EndsWith(".jpg") || file.EndsWith(".webp") || file.EndsWith(".jpeg")).ToArray();
 
             // Xóa tất cả các mục hiện có trong ListView
             imageList.Clear();
@@ -211,17 +213,65 @@ namespace WPF_Capture
                     var rs = resultText.Text;
 
                     // Danh sách các loại thuốc bạn đã biết
-                    List<string> knownDrugs = new List<string> { "Baciamin Plus", "Esapbe", "QA Alipro", "PROHEPATIS", "Candesartan","NEXT G CAL", "Cetirizin 10mg (Taparen)", "Rotundin 60mg", "Penicilin", "Paracetamol" };
+                    List<string> knownDrugs = new List<string> { "YESOM", "Saferon", "Tebexerol", "Medrol", "Arcoxia", "Baciamin Plus", "Bestimac", "DICSEP", "CELERZIN", "Amoxycilin", "Zinnat", "Rivaroxaban", "Tablet", "Gliclazid" };
 
-                    // Lọc tên thuốc từ văn bản
                     if (!string.IsNullOrEmpty(rs) && rs.Length > 0)
                     {
-                        List<string> drugsInText = knownDrugs.Where(drug => rs.ToLower().Contains(drug.ToLower())).ToList();
+                        //List<string> drugsInText = knownDrugs.Where(drug => rs.ToLower().Contains(drug.ToLower())).ToList();
+                        List<string> drugsInText = knownDrugs.Where(drug => rs.IndexOf(drug, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+
+                        if (drugsInText.Any())
+                        {
+                            foreach (string drugName in drugsInText)
+                            {
+                                // Query database to get medicine info
+                                Tuple<int, decimal> medicineInfo = DataConfig.GetMedicineInfo(drugName);
+                                if (medicineInfo != null)
+                                {
+                                    int quantity = medicineInfo.Item1;
+                                    decimal price = medicineInfo.Item2;
+                                    MessageBox.Show($"Tên thuốc: {drugName}\nSố lượng còn lại: {quantity}\nGiá tiền sản phẩm: {price}", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                                else
+                                {
+                                    MessageBox.Show($"Không tìm thấy thông tin cho thuốc có tên: {drugName}", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Không tìm thấy tên thuốc trong văn bản.", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
+                        }
                     }
-
-
-                    //var resultText = Ocr.Read(selectedItem.FilePath).Text;
                 }
+            }
+        }
+    
+        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (listView.SelectedItem != null)
+            {
+                var selectedItem = (ImageInfo)listView.SelectedItem;
+                var imagePath = selectedItem.FilePath;
+
+                MessageBoxResult result = MessageBox.Show($"Bạn có chắc chắn muốn xóa ảnh \"{imagePath}\" không?", "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        File.Delete(imagePath);
+                        LoadImagesFromFolder(System.IO.Path.GetDirectoryName(imagePath));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Đã xảy ra lỗi khi xóa tệp ảnh: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Vui lòng chọn một hình ảnh để xóa.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
     }

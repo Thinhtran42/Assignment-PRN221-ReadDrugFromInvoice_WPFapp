@@ -46,28 +46,6 @@ namespace WPF_Capture.ConnectDB
             return dtReturn;
         }
 
-
-        /// <summary>
-        /// Lấy danh sách tên thuốc từ cơ sở dữ liệu
-        /// </summary>
-        /// <returns>List<string> chứa tên thuốc</returns>
-        //public static List<string> GetDrugNames()
-        //{
-        //    List<string> drugNames = new List<string>();
-
-        //    string query = "SELECT name FROM Drug "; 
-
-        //    DataTable dataTable = DataTransport(query);
-
-        //    foreach (DataRow row in dataTable.Rows)
-        //    {
-        //        string drugName = row["name"].ToString();
-        //        drugNames.Add(drugName);
-        //    }
-
-        //    return drugNames;
-        //}
-
         public static Tuple<int, decimal> GetMedicineInfo(string medicineName)
         {
             Tuple<int, decimal> medicineInfo = null;

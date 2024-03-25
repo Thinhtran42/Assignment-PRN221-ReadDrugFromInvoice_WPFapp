@@ -36,6 +36,13 @@ namespace WPF_Capture
             public ImageSource ImageSource { get; set; }
             public string FilePath { get; set; }
         }
+
+        public class DrugInfo
+        {
+            public string Name { get; set; }
+            public int Quantity { get; set; }
+            public decimal Price { get; set; }
+        }
         public MainWindow()
         {
             InitializeComponent();
@@ -214,31 +221,57 @@ namespace WPF_Capture
 
                     // Danh sách các loại thuốc bạn đã biết
                     //List<string> knownDrugs = new List<string> { "YESOM", "Saferon", "Tebexerol", "Medrol", "Arcoxia", "Baciamin Plus", "Bestimac", "DICSEP", "CELERZIN", "Amoxycilin", "Zinnat", "Rivaroxaban", "Tablet", "Gliclazid" };
+
+                    //Lấy danh sách tên thuốc ở Data
                     DataConfig dataConfig = new DataConfig();
                     List<string> knownDrugs = dataConfig.GetKnownDrugsListNameFromDatabase();
 
                     if (!string.IsNullOrEmpty(rs) && rs.Length > 0)
                     {
                         //List<string> drugsInText = knownDrugs.Where(drug => rs.ToLower().Contains(drug.ToLower())).ToList();
+
+                        //lọc ra các phần tử trong "knownDrugs" mà có chuỗi con giống trong text "rs", stringComparison kh phân biệt chữ hoa thường
                         List<string> drugsInText = knownDrugs.Where(drug => rs.IndexOf(drug, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
 
+                        //if (drugsInText.Any())
+                        //{
+                        //    foreach (string drugName in drugsInText)
+                        //    {
+                        //        // Truy vấn data để lấy thông tin thuốc
+                        //        Tuple<int, decimal> medicineInfo = DataConfig.GetMedicineInfo(drugName);
+                        //        if (medicineInfo != null)
+                        //        {
+                        //            int quantity = medicineInfo.Item1;
+                        //            decimal price = medicineInfo.Item2;
+                        //            MessageBox.Show($"Tên thuốc: {drugName}\nSố lượng còn lại: {quantity}\nGiá tiền sản phẩm: {price}", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
+                        //        }
+                        //        else
+                        //        {
+                        //            MessageBox.Show($"Không tìm thấy thông tin cho thuốc có tên: {drugName}", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
+                        //        }
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    MessageBox.Show("Không tìm thấy tên thuốc trong văn bản.", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
+                        //}
                         if (drugsInText.Any())
                         {
+                            List<DrugInfo> drugInfos = new List<DrugInfo>();
+
                             foreach (string drugName in drugsInText)
                             {
-                                // Query database to get medicine info
                                 Tuple<int, decimal> medicineInfo = DataConfig.GetMedicineInfo(drugName);
                                 if (medicineInfo != null)
                                 {
                                     int quantity = medicineInfo.Item1;
                                     decimal price = medicineInfo.Item2;
-                                    MessageBox.Show($"Tên thuốc: {drugName}\nSố lượng còn lại: {quantity}\nGiá tiền sản phẩm: {price}", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
-                                }
-                                else
-                                {
-                                    MessageBox.Show($"Không tìm thấy thông tin cho thuốc có tên: {drugName}", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
+                                    drugInfos.Add(new DrugInfo { Name = drugName, Quantity = quantity, Price = price });
                                 }
                             }
+
+                            DrugInfoWindow drugInfoWindow = new DrugInfoWindow(drugInfos);
+                            drugInfoWindow.ShowDialog();
                         }
                         else
                         {

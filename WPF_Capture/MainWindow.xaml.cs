@@ -185,7 +185,7 @@ namespace WPF_Capture
                 ImageInfo imageInfo = new ImageInfo()
                 {
                     ImageSource = ToBitmapSource(image),
-                    FilePath = fileName
+                    FilePath = imageFile
                 };
 
                 imageList.Add(imageInfo);
@@ -270,6 +270,9 @@ namespace WPF_Capture
                                     drugInfos.Add(new DrugInfo { Id = id ,Name = name, Quantity = quantity, Price = price });
                                 }
                             }
+
+                            ImageWindow imageWindow = new ImageWindow(selectedItem.FilePath);
+                            imageWindow.Show();
 
                             DrugInfoWindow drugInfoWindow = new DrugInfoWindow(drugInfos);
                             drugInfoWindow.ShowDialog();

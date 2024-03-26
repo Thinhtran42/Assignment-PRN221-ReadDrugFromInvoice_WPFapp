@@ -39,6 +39,7 @@ namespace WPF_Capture
 
         public class DrugInfo
         {
+            public int Id { get; set; }
             public string Name { get; set; }
             public int Quantity { get; set; }
             public decimal Price { get; set; }
@@ -179,10 +180,12 @@ namespace WPF_Capture
             {
                 Mat image = CvInvoke.Imread(imageFile); // Đọc hình ảnh từ tệp
 
+                string fileName = System.IO.Path.GetFileName(imageFile);
+
                 ImageInfo imageInfo = new ImageInfo()
                 {
                     ImageSource = ToBitmapSource(image),
-                    FilePath = imageFile
+                    FilePath = fileName
                 };
 
                 imageList.Add(imageInfo);
@@ -228,45 +231,43 @@ namespace WPF_Capture
 
                     if (!string.IsNullOrEmpty(rs) && rs.Length > 0)
                     {
-                        //List<string> drugsInText = knownDrugs.Where(drug => rs.ToLower().Contains(drug.ToLower())).ToList();
+                        // Tạo một danh sách mới để lưu trữ tất cả các phần của tên thuốc
+                        List<string> allDrugParts = new List<string>();
+
+                        // Duyệt qua tất cả các tên thuốc đã biết
+                        foreach (string drug in knownDrugs)
+                        {
+                            // Tách tên thuốc thành các phần bằng cách sử dụng dấu cách và dấu ngoặc đơn làm dấu phân cách
+                            string[] parts = drug.Split(new char[] { ' ', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+
+                            // Thêm tất cả các phần vào danh sách
+                            allDrugParts.AddRange(parts);
+                        }
 
                         //lọc ra các phần tử trong "knownDrugs" mà có chuỗi con giống trong text "rs", stringComparison kh phân biệt chữ hoa thường
-                        List<string> drugsInText = knownDrugs.Where(drug => rs.IndexOf(drug, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+                        //List<string> drugsInText = knownDrugs.Where(drug => rs.IndexOf(drug, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
 
-                        //if (drugsInText.Any())
-                        //{
-                        //    foreach (string drugName in drugsInText)
-                        //    {
-                        //        // Truy vấn data để lấy thông tin thuốc
-                        //        Tuple<int, decimal> medicineInfo = DataConfig.GetMedicineInfo(drugName);
-                        //        if (medicineInfo != null)
-                        //        {
-                        //            int quantity = medicineInfo.Item1;
-                        //            decimal price = medicineInfo.Item2;
-                        //            MessageBox.Show($"Tên thuốc: {drugName}\nSố lượng còn lại: {quantity}\nGiá tiền sản phẩm: {price}", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
-                        //        }
-                        //        else
-                        //        {
-                        //            MessageBox.Show($"Không tìm thấy thông tin cho thuốc có tên: {drugName}", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
-                        //        }
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //    MessageBox.Show("Không tìm thấy tên thuốc trong văn bản.", "Thông tin thuốc", MessageBoxButton.OK, MessageBoxImage.Information);
-                        //}
+                        List<string> drugsInText = allDrugParts.Where(drug => rs.IndexOf(drug, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+
                         if (drugsInText.Any())
                         {
                             List<DrugInfo> drugInfos = new List<DrugInfo>();
 
                             foreach (string drugName in drugsInText)
                             {
-                                Tuple<int, decimal> medicineInfo = DataConfig.GetMedicineInfo(drugName);
+                                Tuple<int, string, int, decimal> medicineInfo = DataConfig.GetMedicineInfo(drugName);
                                 if (medicineInfo != null)
                                 {
-                                    int quantity = medicineInfo.Item1;
-                                    decimal price = medicineInfo.Item2;
-                                    drugInfos.Add(new DrugInfo { Name = drugName, Quantity = quantity, Price = price });
+                                    int id = medicineInfo.Item1;
+                                    if (drugInfos.Any(d => d.Id == id))
+                                    {
+                                        continue;
+                                    }
+
+                                    string name = medicineInfo.Item2;
+                                    int quantity = medicineInfo.Item3;
+                                    decimal price = medicineInfo.Item4;
+                                    drugInfos.Add(new DrugInfo { Id = id ,Name = name, Quantity = quantity, Price = price });
                                 }
                             }
 

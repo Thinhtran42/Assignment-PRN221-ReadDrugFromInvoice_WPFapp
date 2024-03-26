@@ -11,7 +11,7 @@ namespace WPF_Capture.ConnectDB
 {
     public class DataConfig
     {
-        private static string sConnect = "Server=DESKTOP-I86L24K\\SQLEXPRESS;Database=MedicineReceipt; Persist Security Info=True;User ID=sa;Password=12345;TrustServerCertificate=True";
+        private static string sConnect = "Server=.;Database=MedicineReceipt; Persist Security Info=True;User ID=sa;Password=12345;TrustServerCertificate=True";
 
         private static SqlConnection conn;
 
@@ -46,9 +46,9 @@ namespace WPF_Capture.ConnectDB
             return dtReturn;
         }
 
-        public static Tuple<int, decimal> GetMedicineInfo(string medicineName)
+        public static Tuple<int, string, int, decimal> GetMedicineInfo(string medicineName)
         {
-            Tuple<int, decimal> medicineInfo = null;
+            Tuple<int, string, int, decimal> medicineInfo = null;
 
             try
             {
@@ -56,18 +56,23 @@ namespace WPF_Capture.ConnectDB
                 {
                     connection.Open();
 
-                    string query = "SELECT Quantity, Price FROM Drug WHERE Name = @name";
+                    // use LIKE to search for similar names
+                    string query = "SELECT * FROM Drug WHERE Name LIKE @name";
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@name", medicineName);
+
+                    //command.Parameters.AddWithValue("@name", medicineName);
+                    command.Parameters.AddWithValue("@name", "%" + medicineName + "%");
 
                     SqlDataReader reader = command.ExecuteReader();
 
                     if (reader.Read())
                     {
+                        int id = Convert.ToInt32(reader["Id"]);
+                        string name = reader["Name"].ToString();
                         int quantity = Convert.ToInt32(reader["Quantity"]);
                         decimal price = Convert.ToDecimal(reader["Price"]);
 
-                        medicineInfo = new Tuple<int, decimal>(quantity, price);
+                        medicineInfo = new Tuple<int, string, int, decimal>(id, name, quantity, price);
                     }
 
                     reader.Close();

@@ -8,7 +8,15 @@
         Title="DrugInfoWindow" Height="450" Width="800">
 
     <Grid>
-        <DataGrid x:Name="drugDataGrid" AutoGenerateColumns="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Image x:Name="selectedImage" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top" Stretch="Uniform"/>
+
+        <DataGrid x:Name="drugDataGrid" Grid.Row="1" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Drug Name" Binding="{Binding Name}" Width="*">
                     <DataGridTextColumn.ElementStyle>
@@ -33,5 +41,14 @@
                 </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
+
+
+        <!-- Border để chứa Label và TextBlock -->
+        <Border Grid.Row="2" HorizontalAlignment="Center" BorderBrush="Black" BorderThickness="1" Padding="5">
+            <StackPanel Orientation="Horizontal">
+                <!-- TextBlock để hiển thị giá trị của TotalPrice -->
+                <TextBlock x:Name="TotalPriceValue" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

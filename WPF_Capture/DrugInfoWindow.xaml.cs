@@ -23,7 +23,19 @@ namespace WPF_Capture
         public DrugInfoWindow(List<DrugInfo> drugInfos)
         {
             InitializeComponent();
+
+            // Hiển thị thông tin thuốc trong DataGrid
             drugDataGrid.ItemsSource = drugInfos;
+
+            // Tính tổng giá trị của các thuốc
+            decimal totalPrice = 0;
+            foreach (DrugInfo drug in drugInfos)    
+            {
+                totalPrice += drug.Price;
+            }
+
+            // Hiển thị tổng giá trị trong TextBlock TotalPrice
+            TotalPriceValue.Text = $"Total Price: {totalPrice}";
         }
     }
 }

@@ -209,7 +209,7 @@ namespace WPF_Capture
                 {
                     var Ocr = new IronTesseract();
 
-                    Ocr.Language = OcrLanguage.EnglishBest;
+                    Ocr.Language = OcrLanguage.EnglishFast;
                     //Ocr.AddSecondaryLanguage(OcrLanguage.Vietnamese);
 
                     using OcrInput input = new OcrInput(selectedItem.FilePath);
@@ -266,7 +266,7 @@ namespace WPF_Capture
 
                                     string name = medicineInfo.Item2;
                                     int quantity = medicineInfo.Item3;
-                                    decimal price = medicineInfo.Item4;
+                                    decimal price = medicineInfo.Item4 * quantity;
                                     drugInfos.Add(new DrugInfo { Id = id ,Name = name, Quantity = quantity, Price = price });
                                 }
                             }

@@ -11,7 +11,7 @@ namespace WPF_Capture.ConnectDB
 {
     public class DataConfig
     {
-        private static string sConnect = "Server=.;Database=MedicineReceipt; Persist Security Info=True;User ID=sa;Password=12345;TrustServerCertificate=True";
+        private static string sConnect = "Server=DESKTOP-I86L24K\\SQLEXPRESS;Database=MedicineReceipt; Persist Security Info=True;User ID=sa;Password=12345;TrustServerCertificate=True";
 
         private static SqlConnection conn;
 
